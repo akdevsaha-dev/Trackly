@@ -52,7 +52,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             },
         }),
         GitHub({ allowDangerousEmailAccountLinking: true }),
-        Google({ allowDangerousEmailAccountLinking: true })
+        Google({ allowDangerousEmailAccountLinking: true }),
     ],
-
+    callbacks: {
+        session({ session, token }) {
+            if (session.user && token) {
+                session.user.id = token.id as string;
+            }
+            return session;
+        },
+    },
 })
