@@ -1,16 +1,106 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
-}
-
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Plan {
+  FREE
+  PAID
+}
+
+enum AlertType {
+  DOWN
+  UP
+  SSL_EXPIRE
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  plan          Plan      @default(FREE)
+  sites         Site[]
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Site {
+  id         String      @id @default(cuid())
+  url        String
+  brandImage String?
+  createdAt  DateTime    @default(now())
+  isDown     Boolean     @default(false)
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  statusLogs StatusLog[]
+  alertLogs  AlertLog[]
+
+  @@unique([userId, url])
+}
+
+model AlertLog {
+  id          String    @id @default(uuid())
+  site        Site      @relation(fields: [siteId], references: [id])
+  siteId      String
+  sentAt      DateTime  @default(now())
+  alertReason String
+  type        AlertType
+}
+
+model StatusLog {
+  id         String   @id @default(uuid())
+  siteId     String
+  site       Site     @relation(fields: [siteId], references: [id])
+  statusCode Int
+  responseMs Int
+  checkedAt  DateTime @default(now())
+
+  @@index([checkedAt])
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
+}
