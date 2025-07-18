@@ -78,13 +78,17 @@ export const HeroSection = () => {
   };
 
   return (
-    <div className="flex h-[80vh] items-center justify-center">
+    <div className="flex h-[80vh] justify-center">
       <div className="w-[75%]">
+        <div className="mt-[150px] text-center">ACHIEVE PEAK PERFORMANCE</div>
+        <div className="mt-3 flex h-[1px] w-full justify-center">
+          <div className="h-[1px] w-28 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
+        </div>
         <motion.h1
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="px-12 text-center text-[80px] leading-none font-light tracking-tight antialiased"
+          className="mt-[180px] px-12 text-center text-[80px] leading-none font-light tracking-tight font-stretch-extra-expanded antialiased"
         >
           {headingText.map((word, index) => (
             <motion.span
@@ -100,7 +104,7 @@ export const HeroSection = () => {
           initial="hidden"
           animate="visible"
           variants={paraContainerVariants}
-          className="px-32 pt-6 text-center text-[37px] font-light text-slate-300"
+          className="px-32 pt-6 text-center text-[37px] font-light text-indigo-100"
         >
           {paragraphText.map((word, index) => (
             <motion.span
@@ -116,7 +120,7 @@ export const HeroSection = () => {
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
           transition={{ delay: 2, duration: 2, ease: "easeOut" }}
-          className="h-[2px] w-full origin-left bg-gradient-to-r from-transparent via-slate-400 to-transparent"
+          className="h-[2px] w-full origin-left bg-gradient-to-r from-transparent via-cyan-300 to-transparent"
         ></motion.div>
       </div>
     </div>

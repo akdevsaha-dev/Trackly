@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export const Navbar = () => {
   return (
-    <div className="grid h-20 w-full grid-cols-12 bg-white/1 shadow-md backdrop-blur-lg">
+    <div className="fixed grid h-20 w-full grid-cols-12 bg-white/1 shadow-md backdrop-blur-lg">
       <div className="col-span-3 flex items-center pl-13">
         <svg
           width="120"
