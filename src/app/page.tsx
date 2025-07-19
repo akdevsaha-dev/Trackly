@@ -1,5 +1,6 @@
 import { HeroSection } from "@/components/heroSection";
 import { Navbar } from "@/components/navbar";
+import Image from "next/image";
 
 const starData = [
   { top: "10%", left: "5%", delay: "0.2s" },
@@ -75,9 +76,9 @@ export default function Home() {
         />
         <line
           x1="0"
-          y1="50%"
+          y1="55%"
           x2="100%"
-          y2="50%"
+          y2="55%"
           stroke="white"
           strokeOpacity="0.07"
           strokeWidth="1"
@@ -85,9 +86,9 @@ export default function Home() {
         />
         <line
           x1="0"
-          y1="80%"
+          y1="90%"
           x2="100%"
-          y2="80%"
+          y2="90%"
           stroke="white"
           strokeOpacity="0.07"
           strokeWidth="1"
@@ -114,6 +115,18 @@ export default function Home() {
       <div className="relative z-30 h-full">
         <Navbar />
         <HeroSection />
+      </div>
+      <div className="flex h-screen w-full flex-col items-center bg-[#020013]">
+        <Image
+          src="/anka_image_3.png"
+          alt="img"
+          height={800}
+          width={800}
+          className="relative"
+        />
+        <div className="absolute top-0">
+          Best-in-class uptime monitoring. No false positives.
+        </div>
       </div>
     </div>
   );
