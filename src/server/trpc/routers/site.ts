@@ -42,5 +42,24 @@ export const siteRouter = router({
                 }
             })
             return site;
+        }),
+
+    getSites: procedure
+        .query(async ({ ctx }) => {
+            const session = ctx.session;
+            if (!session?.user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+
+            const userId = session.user.id;
+            const sites = await ctx.prisma.site.findMany({
+                where: {
+                    userId
+                },
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            })
+            return sites;
         })
 })
