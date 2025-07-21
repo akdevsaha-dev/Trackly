@@ -7,7 +7,7 @@ const MAX_SITES = {
 }
 export const siteRouter = router({
     addSite: procedure.input(z.object({
-        url: z.string()
+        url: z.url({ message: "Invalid URL" })
     }))
         .mutation(async ({ input, ctx }) => {
             const session = ctx.session
@@ -61,5 +61,50 @@ export const siteRouter = router({
                 }
             })
             return sites;
+        }),
+    // add cloudinary
+    addBrandLogo: procedure.input(z.object({
+        brandImage: z.url(),
+        url: z.url()
+
+    }))
+        .mutation(async ({ input, ctx }) => {
+            const session = ctx.session;
+            if (!session?.user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const userId = session.user.id
+            const user = await ctx.prisma.user.findUnique({
+                where: {
+                    id: userId
+                }
+            })
+            if (!user) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const site = await ctx.prisma.site.findUnique({
+                where: {
+                    userId_url: {
+                        userId,
+                        url: input.url
+                    }
+                }
+            });
+
+            if (!site) {
+                throw new TRPCError({ code: "NOT_FOUND", message: "Site not found." });
+            }
+            const updatedSite = await ctx.prisma.site.update({
+                where: {
+                    userId_url: {
+                        userId,
+                        url: input.url
+                    }
+                },
+                data: {
+                    brandImage: input.brandImage
+                }
+            })
+            return updatedSite;
         })
 })
