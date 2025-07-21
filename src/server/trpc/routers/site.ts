@@ -6,7 +6,7 @@ const MAX_SITES = {
     PAID: 20
 }
 export const siteRouter = router({
-    createSite: procedure.input(z.object({
+    addSite: procedure.input(z.object({
         url: z.string()
     }))
         .mutation(async ({ input, ctx }) => {
