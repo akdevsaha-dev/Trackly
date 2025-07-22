@@ -27,3 +27,5 @@ export const InputBox = forwardRef<HTMLInputElement, InputBoxProps>(
     );
   },
 );
+
+InputBox.displayName = "InputBox";
