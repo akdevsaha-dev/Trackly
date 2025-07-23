@@ -1,4 +1,3 @@
-import { error } from "console"
 import { pingWebsites } from "../lib/pingWebsites"
 import { prisma } from "../prisma"
 

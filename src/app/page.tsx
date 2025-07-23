@@ -101,7 +101,7 @@ export default function Home() {
         {starData.map((star, i) => (
           <div
             key={i}
-            className="animate-starDrift absolute h-1 w-1 rounded-full bg-white/60 blur-[1px]"
+            className="animate-starDrift absolute h-1 w-1 animate-ping rounded-full bg-white/60 blur-[1px]"
             style={{
               top: star.top,
               left: star.left,
