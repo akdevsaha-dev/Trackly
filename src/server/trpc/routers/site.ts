@@ -106,5 +106,36 @@ export const siteRouter = router({
                 }
             })
             return updatedSite;
+        }),
+    getSiteStatus: procedure
+        .input(z.object({
+            siteId: z.string()
+        }))
+        .query(async ({ input, ctx }) => {
+            const userId = ctx.session?.user.id
+            if (!userId) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const site = await ctx.prisma.site.findUnique({
+                where: {
+                    id: input.siteId,
+                    userId,
+                },
+                select: {
+                    id: true,
+                    url: true,
+                    brandImage: true,
+                    isDown: true,
+                    createdAt: true,
+                    statusLogs: {
+                        take: 10,
+                        orderBy: {
+                            checkedAt: "desc"
+                        }
+                    }
+                }
+            })
+            return site;
         })
+
 })
