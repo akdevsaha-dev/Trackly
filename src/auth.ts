@@ -6,6 +6,7 @@ import Google from "next-auth/providers/google"
 import Credentials from "next-auth/providers/credentials"
 import { signInSchema } from "./lib/zod"
 import bcrypt from "bcryptjs"
+import { sendSignUpEmail } from "./lib/alerts/signUpEmailAlert"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     adapter: PrismaAdapter(prisma),
@@ -62,4 +63,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             return session;
         },
     },
+    events: {
+        async createUser({ user }) {
+            const fullUser = await prisma.user.findUnique({
+                where: { id: user.id },
+            });
+
+            if (fullUser) {
+                await sendSignUpEmail(fullUser);
+            }
+        }
+    }
 })
