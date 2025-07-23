@@ -5,11 +5,13 @@ import { sendDownEmail } from "@/lib/alerts/downEmailAlert"
 import { sendBackUpEmail } from "@/lib/alerts/upEmailAlert"
 
 export const checkAllSites = async () => {
+    console.log("🛠️ checkAllSites: Starting site checks...");
     const sites = await prisma.site.findMany({
         include: {
             user: true
         }
     })
+    console.log(`Found ${sites.length} site(s) to check.`);
     await Promise.all(
         sites.map(async (site) => {
             try {
