@@ -18,6 +18,13 @@ enum AlertType {
   SSL_EXPIRE
 }
 
+enum DeviceType {
+  MOBILE
+  TABLET
+  DESKTOP
+  UNKNOWN
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -34,17 +41,32 @@ model User {
 }
 
 model Site {
-  id         String      @id @default(cuid())
-  url        String
-  brandImage String?
-  createdAt  DateTime    @default(now())
-  isDown     Boolean     @default(false)
-  userId     String
-  user       User        @relation(fields: [userId], references: [id])
-  statusLogs StatusLog[]
-  alertLogs  AlertLog[]
+  id            String      @id @default(cuid())
+  url           String
+  warmupUrl     String?
+  warmUpEnabled Boolean     @default(false)
+  provider      String?
+  brandImage    String?
+  createdAt     DateTime    @default(now())
+  isDown        Boolean     @default(false)
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  statusLogs    StatusLog[]
+  alertLogs     AlertLog[]
+  visits        Visit[]
 
   @@unique([userId, url])
+}
+
+model Visit {
+  id         String     @id @default(uuid())
+  siteId     String
+  site       Site       @relation(fields: [siteId], references: [id])
+  visitedAt  DateTime   @default(now())
+  deviceType DeviceType
+  userAgent  String?
+
+  @@index([siteId])
 }
 
 model AlertLog {
