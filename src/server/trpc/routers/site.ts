@@ -136,6 +136,13 @@ export const siteRouter = router({
                 }
             })
             return site;
+        }),
+    getProvider: procedure
+        .input(z.object({
+            sideId: z.string()
+        }))
+        .query(({ input, ctx })=>{
+            
         })
 
 })
