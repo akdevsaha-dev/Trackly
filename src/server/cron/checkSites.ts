@@ -1,17 +1,15 @@
 import { AlertType } from "@prisma/client"
-import { pingWebsites } from "../lib/pingWebsites"
+import { detectHostingProvider, pingWebsites } from "../lib/pingWebsites"
 import { prisma } from "../prisma"
 import { sendDownEmail } from "@/lib/alerts/downEmailAlert"
 import { sendBackUpEmail } from "@/lib/alerts/upEmailAlert"
 
 export const checkAllSites = async () => {
-    console.log("🛠️ checkAllSites: Starting site checks...");
     const sites = await prisma.site.findMany({
         include: {
             user: true
         }
     })
-    console.log(`Found ${sites.length} site(s) to check.`);
     await Promise.all(
         sites.map(async (site) => {
             try {
@@ -68,6 +66,36 @@ export const checkAllSites = async () => {
                 }
             } catch (error) {
                 console.error(`failed to ping ${site.url}`, error)
+            }
+        })
+    )
+}
+
+export const checkWarmupSite = async () => {
+    const sites = await prisma.site.findMany({
+        include: {
+            user: true
+        }
+    })
+    await Promise.all(
+        sites.map(async (site) => {
+            try {
+                if (!site.warmUpEnabled) return;
+                const provider = await detectHostingProvider(site.url);
+                const warmUpUrl = site.warmupUrl || (
+                    site.url.endsWith("/") ?
+                        `${site.url}api/ping`
+                        : `${site.url}/api/ping`
+                )
+                const res = await fetch(warmUpUrl, {
+                    method: "GET",
+                    headers: {
+                        "User-Agent": "Trackly-Warmup-Agent"
+                    }
+                })
+                console.log(`✅ Warmed up ${site.url} (${provider}) → ${res.status}`)
+            } catch (error) {
+                console.warn(`❌ Warmup failed for ${site.url}:`, error);
             }
         })
     )

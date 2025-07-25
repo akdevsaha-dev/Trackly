@@ -6,6 +6,7 @@ const MAX_SITES = {
     FREE: 2,
     PAID: 20
 }
+// const PROVIDERS = ["Vercel", "Netlify", "AWS (CloudFront)", "Fly.io", "Cloudflare", "GitHub Pages", "Render", "Heroku", "DigitalOcean App Platform", "Akamai Edge"]
 export const siteRouter = router({
     addSite: procedure.input(z.object({
         url: z.url({ message: "Invalid URL" })
@@ -35,11 +36,18 @@ export const siteRouter = router({
                     message: `You can monitor upto ${maxSites} with the ${plan.toLowerCase()} plan`
                 })
             }
-            const provider = await detectHostingProvider(input.url)
+
             const site = await ctx.prisma.site.create({
                 data: {
                     url: input.url,
                     userId,
+                }
+            })
+            const provider = await detectHostingProvider(site.url)
+            await ctx.prisma.site.update({
+                where: {
+                    id: site.id
+                }, data: {
                     provider
                 }
             })
