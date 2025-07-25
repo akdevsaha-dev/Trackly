@@ -1,6 +1,7 @@
 import { TRPCError } from "@trpc/server";
 import { procedure, router } from "../trpc";
 import { z } from "zod"
+import { detectHostingProvider } from "@/server/lib/pingWebsites";
 const MAX_SITES = {
     FREE: 2,
     PAID: 20
@@ -34,11 +35,12 @@ export const siteRouter = router({
                     message: `You can monitor upto ${maxSites} with the ${plan.toLowerCase()} plan`
                 })
             }
-
+            const provider = await detectHostingProvider(input.url)
             const site = await ctx.prisma.site.create({
                 data: {
                     url: input.url,
-                    userId
+                    userId,
+                    provider
                 }
             })
             return site;
@@ -137,12 +139,4 @@ export const siteRouter = router({
             })
             return site;
         }),
-    getProvider: procedure
-        .input(z.object({
-            sideId: z.string()
-        }))
-        .query(({ input, ctx })=>{
-            
-        })
-
 })

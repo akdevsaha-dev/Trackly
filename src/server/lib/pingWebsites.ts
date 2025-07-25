@@ -10,7 +10,7 @@ export const pingWebsites = async (url: string) => {
     }
 }
 
-export const detectHostingProvider = async (url: string) => {
+export const detectHostingProvider = async (url: string): Promise<string> => {
     try {
         const res = await fetch(url, { method: "HEAD" })
         const headers = Object.fromEntries(res.headers.entries())
