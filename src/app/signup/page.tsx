@@ -127,6 +127,17 @@ export default function Page() {
             <Image src={"/google.svg"} alt="google" height={15} width={15} />
             <div className="text-sm font-semibold">Sign up with Google</div>
           </div>
+          <div className="mt-10 text-center">
+            <span className="mr-1 text-sm font-light text-neutral-300">
+              Already have an account?
+            </span>
+            <Link
+              href={"/login"}
+              className="text-sm font-semibold text-cyan-300 hover:text-cyan-200"
+            >
+              Sign in.
+            </Link>
+          </div>
         </div>
       </div>
     </div>
