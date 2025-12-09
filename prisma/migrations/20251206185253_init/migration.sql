@@ -4,6 +4,9 @@ CREATE TYPE "Plan" AS ENUM ('FREE', 'PAID');
 -- CreateEnum
 CREATE TYPE "AlertType" AS ENUM ('DOWN', 'UP', 'SSL_EXPIRE');
 
+-- CreateEnum
+CREATE TYPE "DeviceType" AS ENUM ('MOBILE', 'TABLET', 'DESKTOP', 'UNKNOWN');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -23,12 +26,26 @@ CREATE TABLE "User" (
 CREATE TABLE "Site" (
     "id" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "warmupUrl" TEXT,
+    "warmUpEnabled" BOOLEAN NOT NULL DEFAULT false,
+    "provider" TEXT,
     "brandImage" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isDown" BOOLEAN NOT NULL DEFAULT false,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "Site_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Visit" (
+    "id" TEXT NOT NULL,
+    "siteId" TEXT NOT NULL,
+    "visitedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deviceType" "DeviceType" NOT NULL,
+    "userAgent" TEXT,
+
+    CONSTRAINT "Visit_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -97,6 +114,9 @@ CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 CREATE UNIQUE INDEX "Site_userId_url_key" ON "Site"("userId", "url");
 
 -- CreateIndex
+CREATE INDEX "Visit_siteId_idx" ON "Visit"("siteId");
+
+-- CreateIndex
 CREATE INDEX "StatusLog_checkedAt_idx" ON "StatusLog"("checkedAt");
 
 -- CreateIndex
@@ -104,6 +124,9 @@ CREATE UNIQUE INDEX "Session_sessionToken_key" ON "Session"("sessionToken");
 
 -- AddForeignKey
 ALTER TABLE "Site" ADD CONSTRAINT "Site_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Visit" ADD CONSTRAINT "Visit_siteId_fkey" FOREIGN KEY ("siteId") REFERENCES "Site"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AlertLog" ADD CONSTRAINT "AlertLog_siteId_fkey" FOREIGN KEY ("siteId") REFERENCES "Site"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
