@@ -21,7 +21,7 @@ export default function Page() {
   const { mutate: createSite } = trpc.site.addSite.useMutation({
     onSuccess: () => {
       toast.success("Site created successfully.");
-      router.push("/dashboard");
+      router.push("/monitors");
     },
     onError: (error) => {
       toast.error(error.message);
@@ -38,8 +38,8 @@ export default function Page() {
   };
 
   return (
-    <div className="h-screen w-full bg-[url('/background-start.jpg')] bg-contain bg-no-repeat text-white">
-      <div className="flex h-[10vh] w-full items-center pl-10">
+    <div className="h-screen w-full md:bg-[url('/background-start.jpg')] bg-contain bg-no-repeat text-white">
+      <div className="flex h-[10vh] w-full  items-center pl-10">
         <Image src={"/logo.svg"} alt="logo" height={100} width={100} />
       </div>
 
@@ -49,36 +49,37 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="mt-10 flex w-full justify-center text-center text-7xl font-medium tracking-normal text-neutral-200">
-        <div className="w-[50%]">Radically better observability stack</div>
+      <div className="mt-10 flex w-full justify-center text-center text-4xl md:text-7xl font-medium tracking-normal text-neutral-200">
+        <div className="w-[80%] lg:w-[50%]">Radically better observability stack</div>
       </div>
 
       <div className="flex w-full flex-col items-center">
-        <div className="mt-5 w-[50%] px-14 text-center text-xl text-slate-100">
+        <div className="mt-5 w-[85%] lg:w-[50%] px-14 text-center text-sm md:text-xl text-slate-100">
           Track uptime, response time, and performance effortlessly with our
           advanced monitoring platform
         </div>
 
-        <div className="mt-5 flex w-[50%] justify-center gap-4">
-          <input
-            type="text"
-            value={url}
-            className="w-[300px] rounded-lg border-[1px] border-[#242c4a] bg-[#1E1F2D] px-4 py-3 text-sm focus:outline-none"
-            placeholder="https://example.com"
-            onChange={(e) => setUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleSubmit();
-              }
-            }}
-          />
-          <button
-            onClick={handleSubmit}
-            className="cursor-pointer rounded-lg border-[2px] border-[#797fd1f9] bg-[#656ad3] px-6 py-2 text-sm font-semibold text-white hover:bg-[#656bd3da]"
-          >
-            Start Monitoring
-          </button>
-        </div>
+      <div className="mt-5 flex w-full flex-col items-center gap-4 md:flex-row md:justify-center">
+  <input
+    type="text"
+    value={url}
+    className="w-[85%] md:w-[350px] lg:w-[400px] rounded-lg border-[1px] border-[#242c4a] bg-[#1E1F2D] px-4 py-3 text-sm focus:outline-none"
+    placeholder="https://example.com"
+    onChange={(e) => setUrl(e.target.value)}
+    onKeyDown={(e) => {
+      if (e.key === 'Enter') {
+        handleSubmit();
+      }
+    }}
+  />
+
+  <button
+    onClick={handleSubmit}
+    className="cursor-pointer rounded-lg border-[2px] border-[#797fd1f9] bg-[#656ad3] px-6 py-2 text-sm font-semibold text-white hover:bg-[#656bd3da]"
+  >
+    Start Monitoring
+  </button>
+</div>
 
         <div className="mt-8 text-center text-slate-500">
           Start monitoring for free or{" "}
