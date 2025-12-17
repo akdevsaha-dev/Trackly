@@ -122,7 +122,7 @@ export default function Page() {
           </div>
           <div
             className="mt-5 flex w-full cursor-pointer items-center justify-center gap-3 border-[1px] border-neutral-800 py-2 hover:bg-neutral-950"
-            onClick={() => signIn("google", { redirectTo: "/dashboard" })}
+            onClick={() => signIn("google", { redirectTo: "/monitors" })}
           >
             <Image src={"/google.svg"} alt="google" height={15} width={15} />
             <div className="text-sm font-semibold">Sign up with Google</div>

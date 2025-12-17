@@ -119,7 +119,7 @@ export default function Page() {
             </div>
             <div
               className="flex w-[200px] cursor-pointer items-center justify-center gap-3 border-[1px] border-neutral-800 py-2 hover:bg-neutral-950"
-              onClick={() => signIn("github", { redirectTo: "/dashboard" })}
+              onClick={() => signIn("github", { redirectTo: "/monitors" })}
             >
               <Image
                 src={"/github-mark.svg"}

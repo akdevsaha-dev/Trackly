@@ -6,7 +6,6 @@ const MAX_SITES = {
     FREE: 2,
     PAID: 20
 }
-// PROVIDERS = ["Vercel", "Netlify", "AWS (CloudFront)", "Fly.io", "Cloudflare", "GitHub Pages", "Render", "Heroku", "DigitalOcean App Platform", "Akamai Edge"]
 export const siteRouter = router({
     addSite: procedure.input(z.object({
         url: z.url({ message: "Invalid URL" })
@@ -138,12 +137,22 @@ export const siteRouter = router({
                     isDown: true,
                     createdAt: true,
                     statusLogs: {
-                        take: 10,
+                        take: 1,
                         orderBy: {
-                            checkedAt: "desc"
+                            checkedAt: "desc",
+                        },
+                        select: { checkedAt: true },
+                    },
+                    alertLogs: {
+                        take: 1,
+                        orderBy: { sentAt: "desc" },
+                        select: {
+                            type: true,
+                            sentAt: true
                         }
                     }
-                }
+                },
+
             })
             return site;
         }),

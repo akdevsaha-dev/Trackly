@@ -2,7 +2,7 @@
 import { Variants } from "motion";
 import { motion } from "motion/react";
 export const HeroSection = () => {
-  const headingText = "Never Miss a Beat.".split(" ");
+  const headingText = "Never Miss a Beat Again.".split(" ");
   const paragraphText =
     `"Real-time uptime monitoring with instant alerts. Keep your online presence alive."`.split(
       " ",
@@ -12,7 +12,7 @@ export const HeroSection = () => {
     visible: {
       transition: {
         staggerChildren: 0.2,
-        delayChildren: 0.3, // optional: small delay before start
+        delayChildren: 0.3, 
       },
     },
   };
@@ -88,7 +88,7 @@ export const HeroSection = () => {
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="mt-[180px] px-12 text-center text-[80px] leading-none font-light tracking-tight font-stretch-extra-expanded antialiased"
+          className="mt-[140px] md:mt-[180px]  md:px-12 text-center text-[32px] md:text-[80px] leading-none font-light tracking-tight font-stretch-extra-expanded antialiased"
         >
           {headingText.map((word, index) => (
             <motion.span
@@ -104,7 +104,7 @@ export const HeroSection = () => {
           initial="hidden"
           animate="visible"
           variants={paraContainerVariants}
-          className="px-32 pt-6 text-center text-[37px] font-light text-indigo-100"
+          className=" px-5 md:px-22 lg:px-32 pt-6 text-center md:text-[25px] lg:text-[37px] font-light text-indigo-100"
         >
           {paragraphText.map((word, index) => (
             <motion.span
