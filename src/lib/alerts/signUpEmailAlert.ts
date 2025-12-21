@@ -1,11 +1,10 @@
-
-import { User } from "@prisma/client";
+import { User as PrismaUser } from "@prisma/client";
 import { resend } from "../resend";
 import { EmailTemplate } from "@/components/emails/signUpEmailTem";
 
 
 
-export const sendSignUpEmail = async (user: User) => {
+export const sendSignUpEmail = async (user: PrismaUser) => {
     if (!user.email)
         return;
     try {
