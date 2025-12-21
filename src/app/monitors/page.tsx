@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { Sidebar } from "@/components/side-bar";
 import { trpc } from "@/utils/trpc";
@@ -17,7 +18,7 @@ export default function Page() {
       return "Invalid URL";
     }
   };
-  const filteredSites = sites?.filter((site) =>
+  const filteredSites = sites?.filter((site: any) =>
     getSiteName(site.url).toLowerCase().includes(search.toLowerCase()),
   );
   if (isError) {
@@ -87,7 +88,7 @@ export default function Page() {
                     <div>No monitors yet</div>
                   </div>
                 ) : (
-                  filteredSites?.map((site) => (
+                  filteredSites?.map((site: any) => (
                     <Link
                       href={`/monitors/monitor/${site.id}`}
                       className="block hover:bg-[#2A303F]"
