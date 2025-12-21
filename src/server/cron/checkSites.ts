@@ -1,5 +1,5 @@
-
-import { AlertType } from "@prisma/client"
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { AlertType} from "@prisma/client"
 import { detectHostingProvider, pingWebsites } from "../lib/pingWebsites"
 import { prisma } from "../prisma"
 import { sendDownEmail } from "@/lib/alerts/downEmailAlert"
@@ -12,7 +12,7 @@ export const checkAllSites = async () => {
         }
     })
     await Promise.all(
-        sites.map(async (site) => {
+        sites.map(async (site: any) => {
             try {
                 const result = await pingWebsites(site.url);
                 const { statusCode, responseMs } = result;
