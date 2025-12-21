@@ -39,7 +39,7 @@ const authConfig = {
                 }
 
                 if (!user.password) {
-                    const providers = user.accounts.map((acc) => acc.provider).join(", ");
+                    const providers = user.accounts.map((acc:any) => acc.provider).join(", ");
                     throw new Error(`Account exist via ${providers}, please login via ${providers}`);
                 }
                 const isPasswordValid = await bcrypt.compare(password, user.password)
