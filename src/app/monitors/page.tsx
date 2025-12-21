@@ -3,8 +3,11 @@ import { Sidebar } from "@/components/side-bar";
 import { trpc } from "@/utils/trpc";
 import { CircleX, Dot, Loader, Plus, Repeat2 } from "lucide-react";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function Page() {
+  const [search, setSearch] = useState("");
+
   const { data: sites, isLoading, isError } = trpc.site.getSites.useQuery();
   const getSiteName = (url: string) => {
     try {
@@ -14,8 +17,9 @@ export default function Page() {
       return "Invalid URL";
     }
   };
-
-  console.log("sites", sites);
+  const filteredSites = sites?.filter((site) =>
+    getSiteName(site.url).toLowerCase().includes(search.toLowerCase()),
+  );
   if (isError) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-[#202432] text-white">
@@ -27,30 +31,33 @@ export default function Page() {
     );
   }
   return (
-    <div className="flex h-screen w-full">
-      <div className="hidden w-[20vw] bg-[#232837] md:block">
-        <Sidebar />
-      </div>
-      <div className="w-full border-[1px] border-l-[#2e3343] bg-[#202432]">
-        <div className="mt-[10vh] flex w-full justify-center">
-          <div className="w-[92%] lg:w-[85%]">
-            <div className="flex-row justify-between md:flex">
-              <div className="text-3xl font-semibold text-white">Monitors</div>
-              <div className="mt-6 flex gap-5 md:mt-0">
-                <input
-                  type="text"
-                  className="w-[280px] rounded-md border-[1px] border-[#3C4252] bg-[#232837] px-3 py-[8px] text-sm text-[#a6acbc] ring-[#7e87f01e] focus:border-[#7E87F0] focus:shadow-sm focus:ring-4 focus:outline-none"
-                  placeholder="Search"
-                />
-                <Link
-                  href={"/create-monitor"}
-                  className="flex items-center justify-center rounded-md border-[1px] border-[#777bbe] bg-[#5C63CC] px-4 py-1 text-sm text-white hover:bg-[#6a70bd]"
-                >
-                  Create Monitor
-                </Link>
-              </div>
+    <div className="flex min-h-screen w-full bg-[#202432]">
+      <Sidebar />
+
+      <main className="flex w-full justify-center bg-[#202432] pt-20 md:ml-64">
+        <div className="w-full max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h1 className="text-3xl font-semibold text-white">Monitors</h1>
+
+            <div className="flex w-full gap-3 sm:w-auto">
+              <input
+                type="text"
+                value={search}
+                className="w-full rounded-md border border-[#3C4252] bg-[#232837] px-3 py-2 text-sm text-[#a6acbc] focus:border-[#7E87F0] focus:ring-2 focus:ring-[#7E87F030] focus:outline-none sm:w-64"
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search"
+              />
+
+              <Link
+                href="/create-monitor"
+                className="rounded-md bg-[#5C63CC] px-4 py-2 text-sm font-medium whitespace-nowrap text-white hover:bg-[#6a70bd]"
+              >
+                Create monitor
+              </Link>
             </div>
-            <div className="group mt-10 w-full rounded-lg border-[1px] border-[#3b445e]">
+          </div>
+          <div className="mt-8 space-y-6">
+            <div className="group w-full rounded-lg border-[1px] border-[#3b445e]">
               <div className="flex h-14 w-full items-center justify-between">
                 <div className="flex items-center text-sm text-slate-500 transition-all duration-200 group-hover:pl-4">
                   <Dot className="opacity-0 transition-opacity duration-200 group-hover:opacity-100" />
@@ -75,12 +82,12 @@ export default function Page() {
                   <div className="flex h-14 items-center justify-center">
                     <Loader className="animate-spin text-slate-500" />
                   </div>
-                ) : sites?.length === 0 ? (
+                ) : filteredSites?.length === 0 ? (
                   <div className="flex h-14 items-center px-5 text-sm font-semibold text-slate-400">
                     <div>No monitors yet</div>
                   </div>
                 ) : (
-                  sites?.map((site) => (
+                  filteredSites?.map((site) => (
                     <Link
                       href={`/monitors/monitor/${site.id}`}
                       className="block hover:bg-[#2A303F]"
@@ -121,7 +128,7 @@ export default function Page() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

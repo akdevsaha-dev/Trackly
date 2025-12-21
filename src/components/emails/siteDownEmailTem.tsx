@@ -15,7 +15,7 @@ export function SiteDownEmail({ siteUrl, time }: SiteDownEmailProps) {
         <strong>{time}</strong>.
       </p>
       <p>
-        Our systems detected a failure or timeout. We'll notify you once it's
+        Our systems detected a failure or timeout. We&apos;ll notify you once it&apos;s
         back online.
       </p>
       <p style={{ marginTop: "20px" }}>— Trackly Team</p>

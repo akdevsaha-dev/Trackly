@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { Menu, X, Activity, AlertTriangle } from "lucide-react";
+import { Menu, Activity, AlertTriangle } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
@@ -18,45 +18,39 @@ export const Sidebar = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center justify-between border-b border-[#2c3141] bg-[#202432] px-4">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden text-slate-300 hover:text-white"
-          >
-            <Menu size={20} />
-          </button>
-          <span className="font-semibold text-white">Trackly</span>
-        </div>
-      </header>
+      <button
+        onClick={() => setOpen(true)}
+        className="fixed top-4 left-4 z-40 rounded-md bg-[#1c1f2b] p-2 text-slate-300 hover:text-white md:hidden"
+      >
+        <Menu size={20} />
+      </button>
 
       <aside
-        className={`fixed left-0 top-14 z-30 flex h-[calc(100vh-3.5rem)] w-64 flex-col justify-between border-r border-[#2c3141] bg-[#1c1f2b] p-4 text-white transition-transform duration-300
-  ${open ? "translate-x-0" : "-translate-x-full"}
-  md:translate-x-0 md:top-14`}
+        className={`fixed top-0 left-0 z-30 flex h-screen w-64 flex-col justify-between border-r border-[#2c3141] bg-[#1c1f2b] p-4 text-white transition-transform duration-300 ${open ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}
       >
-        <div>
-          <nav className="space-y-1">
-            <div
-              className={`flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer transition-colors
-                ${isMonitors ? "bg-[#2f3648] text-white" : "text-slate-400 hover:bg-[#2a303f] hover:text-white"}
-              `}
-            >
-              <Activity size={18} />
-              <span>Monitors</span>
-            </div>
+        <nav className="space-y-1">
+          <div
+            className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+              isMonitors
+                ? "bg-[#2f3648] text-white"
+                : "text-slate-400 hover:bg-[#2a303f] hover:text-white"
+            }`}
+          >
+            <Activity size={18} />
+            <span>Monitors</span>
+          </div>
 
-            <div
-              className={`flex items-center gap-3 rounded-md px-3 py-2 cursor-pointer transition-colors
-                ${isIncidents ? "bg-[#2f3648] text-white" : "text-slate-400 hover:bg-[#2a303f] hover:text-white"}
-              `}
-            >
-              <AlertTriangle size={18} />
-              <span>Incidents</span>
-            </div>
-          </nav>
-        </div>
-
+          <div
+            className={`flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors ${
+              isIncidents
+                ? "bg-[#2f3648] text-white"
+                : "text-slate-400 hover:bg-[#2a303f] hover:text-white"
+            }`}
+          >
+            <AlertTriangle size={18} />
+            <span>Incidents</span>
+          </div>
+        </nav>
         <div className="flex items-center gap-3">
           {session?.user?.image && (
             <Image

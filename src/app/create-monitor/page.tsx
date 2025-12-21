@@ -28,7 +28,7 @@ export default function Page() {
     },
   });
 
-  const handleSubmit = (e?: React.KeyboardEvent | React.MouseEvent) => {
+  const handleSubmit = () => {
     if (!url.trim()) {
       toast.error("URL is required");
       return;

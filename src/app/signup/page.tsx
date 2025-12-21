@@ -12,7 +12,6 @@ export default function Page() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
   const [agree, setAgree] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -21,7 +20,6 @@ export default function Page() {
       toast.error("Please fill all the fields.");
       return;
     }
-    setLoading(true);
     try {
       const res = await signIn("credentials", {
         redirect: false,
@@ -38,8 +36,6 @@ export default function Page() {
     } catch (error) {
       toast.error("Something went wrong.");
       console.error(error);
-    } finally {
-      setLoading(false);
     }
   };
   return (

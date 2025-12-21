@@ -15,7 +15,7 @@ export function SiteUpEmail({ siteUrl, time }: SiteUpEmailProps) {
         <strong>{time}</strong>.
       </p>
       <p>
-        Everything seems to be working fine again. We'll keep monitoring it for
+        Everything seems to be working fine again. We&apos;ll keep monitoring it for
         you.
       </p>
       <p style={{ marginTop: "20px" }}>— Trackly Team</p>

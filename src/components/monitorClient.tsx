@@ -2,14 +2,30 @@
 
 import { trpc } from "@/utils/trpc";
 import { ChevronRight, Dot, Globe, SendHorizontal } from "lucide-react";
+import { formatDistance } from "date-fns";
+import { useEffect, useState } from "react";
 
 export default function MonitorClient({ siteId }: { siteId: string }) {
+  function useNow(interval = 1000) {
+    const [now, setNow] = useState(Date.now());
+    useEffect(() => {
+      const id = setInterval(() => setNow(Date.now()), interval);
+      return () => clearInterval(id);
+    }, [interval]);
+
+    return now;
+  }
+  const now = useNow(10_000);
   const { data, isLoading, error } = trpc.site.getSiteStatus.useQuery(
     {
       siteId,
     },
     {
       refetchInterval: 180_000,
+      refetchIntervalInBackground: true,
+      refetchOnWindowFocus: true,
+      staleTime: 0,
+      refetchOnMount: "always",
     },
   );
 
@@ -24,13 +40,19 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
       return "Invalid URL";
     }
   };
+
+  const lastCheckedAt = data?.statusLogs[0].checkedAt
+    ? formatDistance(new Date(data.statusLogs[0].checkedAt), new Date(now), {
+        addSuffix: true,
+      })
+    : "Not checked yet";
   return (
     <div className="flex h-screen w-full flex-col">
       <div className="flex h-14 items-center border-b border-b-[#2c3141] px-6 text-sm">
         <Globe size={15} color="#757d96" />
         <div className="pl-3 text-[#757d96]">Monitor</div>
         <ChevronRight className="ml-3" size={14} />
-        <div className="pl-3">{getSiteName(data?.url!)}</div>
+        <div className="pl-3">{getSiteName(data?.url ?? "")}</div>
       </div>
       <div className="w-full flex-1 px-20">
         <div className="mt-28">
@@ -75,7 +97,7 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
               <div className="px-5 py-4 text-sm text-gray-400">
                 Last checked at
               </div>
-              <div></div>
+              <div className="px-5 text-xl font-semibold">{lastCheckedAt}</div>
             </div>
             <div className="h-26 flex-1 rounded-lg border border-[#323746] bg-[#242938]">
               <div className="px-5 py-4 text-sm text-gray-400">Incidents</div>

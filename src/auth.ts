@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import NextAuth from "next-auth"
 import { prisma } from "./server/prisma"
@@ -8,7 +9,7 @@ import { signInSchema } from "./lib/zod"
 import bcrypt from "bcryptjs"
 import { sendSignUpEmail } from "./lib/alerts/signUpEmailAlert"
 
-export const { handlers, signIn, signOut, auth } = NextAuth({
+const authConfig = {
     adapter: PrismaAdapter(prisma),
     providers: [
         Credentials({
@@ -56,15 +57,21 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         Google({ allowDangerousEmailAccountLinking: true }),
     ],
     callbacks: {
-        session({ session, token }) {
+        session({ session, token }: any) {
             if (session.user && token) {
                 session.user.id = token.id as string;
             }
             return session;
         },
+        jwt({ token, user }: any) {
+            if (user) {
+                token.id = user.id;
+            }
+            return token;
+        },
     },
     events: {
-        async createUser({ user }) {
+        async createUser({ user }: any) {
             const fullUser = await prisma.user.findUnique({
                 where: { id: user.id },
             });
@@ -74,4 +81,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
             }
         }
     }
-})
+}
+
+// @ts-expect-error - NextAuth v5 beta type inference issue
+export const { handlers, signIn, signOut, auth } = NextAuth(authConfig)
