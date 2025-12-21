@@ -1,5 +1,5 @@
 
-import { User } from "@/generated/prisma";
+import { User } from "@prisma/client";
 import { resend } from "../resend";
 import { EmailTemplate } from "@/components/emails/signUpEmailTem";
 

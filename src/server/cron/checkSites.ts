@@ -1,5 +1,5 @@
 
-import { AlertType } from "@/generated/prisma"
+import { AlertType } from "@prisma/client"
 import { detectHostingProvider, pingWebsites } from "../lib/pingWebsites"
 import { prisma } from "../prisma"
 import { sendDownEmail } from "@/lib/alerts/downEmailAlert"

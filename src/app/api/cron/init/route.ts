@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { checkAllSites, checkWarmupSite } from "@/server/cron/checkSites";
 
-export async function GET() {
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url)
+  if (searchParams.get("secret") !== process.env.CRON_SECRET) {
+    return new NextResponse("Unauthorized", { status: 401 });
+  }
   try {
     await checkAllSites();
     await checkWarmupSite();
