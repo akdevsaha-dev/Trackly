@@ -83,5 +83,5 @@ const authConfig = {
     }
 }
 
-// @ts-expect-error
+// @ts-expect-error - NextAuth v5 beta type inference issue
 export const { handlers, signIn, signOut, auth } = NextAuth(authConfig)
