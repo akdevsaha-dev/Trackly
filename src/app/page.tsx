@@ -23,15 +23,11 @@ const starData = [
 export default function Home() {
   return (
     <div className="relative h-screen w-full text-white">
-      {/* Background image */}
       <div className="absolute inset-0 z-0 bg-[url('/heroimage.jpg')] bg-cover bg-center" />
 
-      {/* Dark overlay */}
       <div className="absolute inset-0 z-10 bg-black/85" />
 
-      {/* 🟦 Dashed Lines (z-15) */}
       <svg className="pointer-events-none absolute inset-0 z-[15] h-full w-full">
-        {/* 🔹 Vertical Lines (3) */}
         <line
           x1="25%"
           y1="0"
@@ -63,7 +59,6 @@ export default function Home() {
           strokeDasharray="8 6"
         />
 
-        {/* 🔹 Horizontal Lines (3) */}
         <line
           x1="0"
           y1="20%"
@@ -96,7 +91,6 @@ export default function Home() {
         />
       </svg>
 
-      {/* Starfield */}
       <div className="pointer-events-none absolute inset-0 z-20">
         {starData.map((star, i) => (
           <div
@@ -111,7 +105,6 @@ export default function Home() {
         ))}
       </div>
 
-      {/* Content */}
       <div className="relative z-30 h-full">
         <Navbar />
         <HeroSection />
