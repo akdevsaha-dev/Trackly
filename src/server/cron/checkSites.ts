@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { AlertType} from "@prisma/client"
 import { detectHostingProvider, pingWebsites } from "../lib/pingWebsites"
 import { prisma } from "../prisma"
 import { sendDownEmail } from "@/lib/alerts/downEmailAlert"
@@ -39,7 +38,7 @@ export const checkAllSites = async () => {
                         data: {
                             siteId: site.id,
                             alertReason: `Site responded with ${statusCode}`,
-                            type: AlertType.DOWN
+                            type: "DOWN"
                         }
                     });
                     if (site.user.email) {
@@ -58,7 +57,7 @@ export const checkAllSites = async () => {
                         data: {
                             siteId: site.id,
                             alertReason: `Site is back up with ${statusCode}`,
-                            type: AlertType.UP
+                            type: "UP"
                         }
                     })
                     if (site.user.email) {
