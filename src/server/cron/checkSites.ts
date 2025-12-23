@@ -78,7 +78,7 @@ export const checkWarmupSite = async () => {
         }
     })
     await Promise.all(
-        sites.map(async (site) => {
+        sites.map(async (site: any) => {
             try {
                 if (!site.warmUpEnabled) return;
                 const provider = await detectHostingProvider(site.url);
