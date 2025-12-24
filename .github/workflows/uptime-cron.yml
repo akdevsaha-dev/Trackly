@@ -1,4 +1,4 @@
-name: SitePilot Uptime Cron
+name: Trackly Uptime Cron
 
 on:
   schedule:
@@ -8,8 +8,8 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-    environment: production
-    
+    environment: Production – trackly
+
     steps:
       - name: Call uptime cron endpoint
         run: |
