@@ -8,8 +8,10 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
-
+    environment: production
+    
     steps:
       - name: Call uptime cron endpoint
         run: |
-          curl -X GET "${{ secrets.CRON_URL }}"
+          curl -X GET "${{ secrets.CRON_URL }}" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}"
