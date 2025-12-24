@@ -31,7 +31,7 @@ export default function Page() {
         toast.error("Invalid email or password.");
       } else {
         toast.success("Successfully signed in!");
-        router.push("/get-started");
+        router.push("/monitors");
       }
     } catch (error) {
       toast.error("Something went wrong.");
