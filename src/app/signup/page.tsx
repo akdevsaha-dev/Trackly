@@ -101,11 +101,10 @@ export default function Page() {
             <button
               onClick={submitHandler}
               disabled={!agree}
-              className={`mt-6 flex h-10 w-full items-center justify-center gap-2 border-[1px] text-center text-sm font-semibold text-neutral-700 ${
-                agree
-                  ? "bg-cyan-300 hover:bg-cyan-200"
-                  : "cursor-not-allowed border-cyan-300 bg-[#b0e4ed]"
-              }`}
+              className={`mt-6 flex h-10 w-full items-center justify-center gap-2 border-[1px] text-center text-sm font-semibold text-neutral-700 ${agree
+                ? "bg-cyan-300 hover:bg-cyan-200"
+                : "cursor-not-allowed border-cyan-300 bg-[#b0e4ed]"
+                }`}
             >
               Continue
               <ChevronRight size={15} />
