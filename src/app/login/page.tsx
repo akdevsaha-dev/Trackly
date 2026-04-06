@@ -108,7 +108,7 @@ export default function Page() {
           <div className="mt-5 flex w-full justify-between">
             <div
               className="flex w-[200px] cursor-pointer items-center justify-center gap-3 border-[1px] border-neutral-800 py-2 hover:bg-neutral-950"
-              onClick={() => signIn("google", { redirectTo: "/dashboard" })}
+              onClick={() => signIn("google", { redirectTo: "/monitors" })}
             >
               <Image src={"/google.svg"} alt="google" height={15} width={15} />
               <div className="text-sm font-semibold">Google</div>

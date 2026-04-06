@@ -2,10 +2,13 @@ import { TRPCError } from "@trpc/server";
 import { procedure, router } from "../trpc";
 import { z } from "zod"
 import { detectHostingProvider } from "@/server/lib/pingWebsites";
+import { resend } from "@/lib/resend";
+
 const MAX_SITES = {
     FREE: 2,
     PAID: 20
 }
+
 export const siteRouter = router({
     addSite: procedure.input(z.object({
         url: z.url({ message: "Invalid URL" })
@@ -56,20 +59,31 @@ export const siteRouter = router({
     getSites: procedure
         .query(async ({ ctx }) => {
             const session = ctx.session;
-            if (!session?.user) {
-                throw new TRPCError({ code: "UNAUTHORIZED" })
+            if (!session?.user?.id) {
+                throw new TRPCError({ 
+                    code: "UNAUTHORIZED",
+                    message: "You must be signed in to view monitors."
+                })
             }
 
             const userId = session.user.id;
-            const sites = await ctx.prisma.site.findMany({
-                where: {
-                    userId
-                },
-                orderBy: {
-                    createdAt: 'desc'
-                }
-            })
-            return sites;
+            try {
+                const sites = await ctx.prisma.site.findMany({
+                    where: {
+                        userId
+                    },
+                    orderBy: {
+                        createdAt: 'desc'
+                    }
+                })
+                return sites || [];
+            } catch (err) {
+                console.error("Failed to fetch sites:", err);
+                throw new TRPCError({
+                    code: "INTERNAL_SERVER_ERROR",
+                    message: "Could not fetch your monitors from the database."
+                });
+            }
         }),
     // add cloudinary
     addBrandLogo: procedure.input(z.object({
@@ -137,18 +151,19 @@ export const siteRouter = router({
                     isDown: true,
                     createdAt: true,
                     statusLogs: {
-                        take: 1,
+                        take: 50,
                         orderBy: {
                             checkedAt: "desc",
                         },
-                        select: { checkedAt: true },
+                        select: { checkedAt: true, responseMs: true, statusCode: true },
                     },
                     alertLogs: {
-                        take: 1,
+                        take: 10,
                         orderBy: { sentAt: "desc" },
                         select: {
                             type: true,
-                            sentAt: true
+                            sentAt: true,
+                            alertReason: true
                         }
                     }
                 },
@@ -156,4 +171,83 @@ export const siteRouter = router({
             })
             return site;
         }),
+    testAlert: procedure.input(z.object({ siteId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const userId = ctx.session?.user.id
+            if (!userId || !ctx.session?.user.email) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const site = await ctx.prisma.site.findUnique({
+                where: { id: input.siteId, userId }
+            });
+            if (!site) {
+                throw new TRPCError({ code: "NOT_FOUND" })
+            }
+
+            // Use the actual Resend client
+            try {
+                await resend.emails.send({
+                    from: 'Trackly <alerts@trackly.com>',
+                    to: ctx.session.user.email,
+                    subject: `Test Alert - ${site.url}`,
+                    html: `
+                        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #1c1f2b; color: #ffffff; border-radius: 12px;">
+                            <h2 style="color: #7E87F0;">Test Alert from Trackly</h2>
+                            <p>This is a test alert for your monitor: <strong>${site.url}</strong></p>
+                            <p>If you received this, your email notifications are working correctly!</p>
+                            <div style="margin-top: 30px; border-top: 1px solid #2c3141; padding-top: 20px; font-size: 12px; color: #64748b;">
+                                Sent via Trackly Monitoring Service
+                            </div>
+                        </div>
+                    `
+                });
+                return { success: true, message: "Test alert sent to " + ctx.session.user.email };
+            } catch (err) {
+                 return { success: false, message: "Failed to send email. Check your RESEND_API_KEY." };
+            }
+        }),
+
+    deleteSite: procedure.input(z.object({ siteId: z.string() }))
+        .mutation(async ({ input, ctx }) => {
+            const userId = ctx.session?.user.id
+            if (!userId) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const site = await ctx.prisma.site.findUnique({
+                where: { id: input.siteId, userId }
+            });
+            if (!site) {
+                throw new TRPCError({ code: "NOT_FOUND" })
+            }
+            // Delete associated records first
+            await ctx.prisma.statusLog.deleteMany({ where: { siteId: input.siteId } });
+            await ctx.prisma.alertLog.deleteMany({ where: { siteId: input.siteId } });
+            await ctx.prisma.visit.deleteMany({ where: { siteId: input.siteId } });
+            
+            return await ctx.prisma.site.delete({
+                where: { id: input.siteId }
+            });
+        }),
+
+    getIncidents: procedure.query(async ({ ctx }) => {
+        const userId = ctx.session?.user?.id;
+        if (!userId) throw new TRPCError({ 
+            code: "UNAUTHORIZED",
+            message: "You must be signed in to view incidents."
+        });
+        
+        try {
+            return await ctx.prisma.alertLog.findMany({
+                where: {
+                    site: { userId }
+                },
+                orderBy: { sentAt: 'desc' },
+                include: { site: true },
+                take: 50
+            });
+        } catch (err) {
+            console.error("Failed to fetch incidents:", err);
+            return [];
+        }
+    }),
 })
