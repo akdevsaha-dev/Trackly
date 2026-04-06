@@ -30,7 +30,7 @@ export const UptimeBar = ({ logs, isLoading }: UptimeBarProps) => {
         <div className="w-full text-center text-xs text-gray-500 italic">No history available yet</div>
       ) : (
         displayLogs.map((log, i) => {
-          const isDown = log.statusCode === 0 || log.statusCode >= 400;
+          const isDown = log.statusCode < 200 || log.statusCode >= 300;
           return (
             <motion.div
               key={i}

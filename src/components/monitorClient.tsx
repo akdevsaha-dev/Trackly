@@ -73,7 +73,7 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
   }, [data?.statusLogs, now]);
 
   if (isLoading) return (
-    <div className="flex-1 flex items-center justify-center bg-[#1c1f2b]">
+    <div className="flex h-full w-full items-center justify-center bg-[#1c1f2b]">
       <div className="flex flex-col items-center gap-4">
         <div className="h-12 w-12 border-4 border-t-[#7E87F0] border-[#2c3141] rounded-full animate-spin" />
         <p className="text-gray-400 animate-pulse">Loading monitor data...</p>
@@ -130,9 +130,15 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
             className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12"
           >
             <div className="flex items-center gap-6">
-              <div className={`relative h-16 w-16 flex items-center justify-center rounded-2xl ${data?.isDown ? 'bg-red-500/10' : 'bg-green-500/10'}`}>
-                <div className={`h-4 w-4 rounded-full ${data?.isDown ? 'bg-red-500' : 'bg-green-500'} animate-pulse`} />
-                <div className={`absolute inset-0 rounded-2xl border-2 ${data?.isDown ? 'border-red-500/20' : 'border-green-500/20'}`} />
+              <div className={`relative h-16 w-16 flex items-center justify-center rounded-2xl ${
+                !data?.statusLogs?.length ? 'bg-gray-500/10' :
+                metrics?.currentStatus ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                <div className={`h-4 w-4 rounded-full ${
+                  !data?.statusLogs?.length ? 'bg-gray-500' :
+                  metrics?.currentStatus ? 'bg-green-500' : 'bg-red-500'} ${metrics?.currentStatus ? 'animate-pulse' : ''}`} />
+                <div className={`absolute inset-0 rounded-2xl border-2 ${
+                  !data?.statusLogs?.length ? 'border-gray-500/20' :
+                  metrics?.currentStatus ? 'border-green-500/20' : 'border-red-500/20'}`} />
               </div>
 
               <div>
@@ -140,8 +146,13 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
                   {getSiteName(data?.url || "Unknown")}
                 </h1>
                 <div className="flex items-center gap-3 text-sm font-medium">
-                  <span className={data?.isDown ? "text-red-400" : "text-green-400"}>
-                    {data?.isDown ? "System Down" : "System Operational"}
+                  <span className={
+                    !data?.statusLogs?.length ? "text-gray-500" :
+                    metrics?.currentStatus ? "text-green-500" : "text-red-500"}>
+                    {
+                      !data?.statusLogs?.length ? "Pending First Check" :
+                      metrics?.currentStatus ? "Operational" : "Down"
+                    }
                   </span>
                   <div className="w-1 h-1 rounded-full bg-gray-700" />
                   <span className="text-gray-500">Last check {lastCheckedAt}</span>
@@ -162,7 +173,7 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
               { label: "Uptime (50 checks)", value: metrics ? `${metrics.uptimePercentage}%` : "—", icon: Activity, color: "text-[#7E87F0]" },
-              { label: metrics?.currentStatus ? "Currently up for" : "Down for", value: metrics?.statusDuration || "—", icon: Clock, color: "text-green-400" },
+              { label: metrics?.currentStatus ? "Up for" : "Down for", value: metrics?.statusDuration || "—", icon: Clock, color: metrics?.currentStatus ? "text-green-400" : "text-red-500" },
               { label: "Incidents (Last 50)", value: metrics?.incidents ?? "—", icon: AlertCircle, color: "text-red-400" },
             ].map((card, i) => (
               <motion.div

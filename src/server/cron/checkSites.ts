@@ -22,7 +22,7 @@ export const checkAllSites = async () => {
                         responseMs
                     }
                 })
-                const isCurrentlyDown = statusCode >= 500;
+                const isCurrentlyDown = statusCode < 200 || statusCode >= 300;
                 const wasDownBefore = site.isDown;
 
                 if (isCurrentlyDown && !wasDownBefore) {

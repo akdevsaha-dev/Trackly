@@ -72,6 +72,14 @@ export const siteRouter = router({
                     where: {
                         userId
                     },
+                    include: {
+                        statusLogs: {
+                            take: 1,
+                            orderBy: {
+                                checkedAt: "desc"
+                            },
+                        },
+                    },
                     orderBy: {
                         createdAt: 'desc'
                     }
@@ -231,22 +239,29 @@ export const siteRouter = router({
 
     getIncidents: procedure.query(async ({ ctx }) => {
         const userId = ctx.session?.user?.id;
-        if (!userId) throw new TRPCError({ 
-            code: "UNAUTHORIZED",
-            message: "You must be signed in to view incidents."
-        });
+        if (!userId) {
+            console.warn("Unauthorized getIncidents call attempted");
+            throw new TRPCError({ 
+                code: "UNAUTHORIZED",
+                message: "You must be signed in to view incidents."
+            });
+        }
         
         try {
-            return await ctx.prisma.alertLog.findMany({
+            const logs = await ctx.prisma.alertLog.findMany({
                 where: {
-                    site: { userId }
+                    site: {
+                        userId: userId
+                    }
                 },
                 orderBy: { sentAt: 'desc' },
                 include: { site: true },
                 take: 50
             });
+            console.log(`Successfully fetched ${logs.length} incidents for user ${userId}`);
+            return logs;
         } catch (err) {
-            console.error("Failed to fetch incidents:", err);
+            console.error("Failed to fetch incidents for user " + userId, err);
             return [];
         }
     }),

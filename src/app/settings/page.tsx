@@ -3,11 +3,38 @@
 import { Sidebar } from "@/components/side-bar";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
-import { User, Bell, Shield, CreditCard, Mail, ExternalLink, Moon, Sparkles } from "lucide-react";
-import { motion } from "motion/react";
+import { User, Bell, Shield, CreditCard, Mail, ExternalLink, Moon, Sparkles, Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { trpc } from "@/utils/trpc";
+import toast from "react-hot-toast";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
+  const [name, setName] = useState("");
+
+  useEffect(() => {
+    if (session?.user?.name) {
+      setName(session.user.name);
+    }
+  }, [session]);
+
+  const updateNameMutation = trpc.user.updateName.useMutation({
+    onSuccess: async () => {
+      toast.success("Username updated successfully");
+      await update();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update username");
+    }
+  });
+
+  const handleSave = () => {
+    if (!name || name.trim().length < 2) {
+      toast.error("Name must be at least 2 characters long");
+      return;
+    }
+    updateNameMutation.mutate({ name });
+  };
 
   const sections = [
     { id: 'profile', label: 'Profile', icon: User },
@@ -70,14 +97,32 @@ export default function SettingsPage() {
                     </button>
                   </div>
 
-                  <div className="flex-1 grid gap-4 w-full">
+                  <div className="flex-1 grid gap-6 w-full">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest px-1">Display Name</label>
-                      <input
-                        type="text"
-                        defaultValue={session?.user?.name || ""}
-                        className="w-full bg-[#232837] border border-[#2c3141] rounded-xl px-4 py-3 text-sm focus:border-[#7E87F0] focus:ring-1 focus:ring-[#7E87F0] outline-none transition-all"
-                      />
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <input
+                          type="text"
+                          value={name}
+                          onChange={(e) => setName(e.target.value)}
+                          className="flex-1 bg-[#232837] border border-[#2c3141] rounded-xl px-4 py-3 text-sm focus:border-[#7E87F0] focus:ring-1 focus:ring-[#7E87F0] outline-none transition-all"
+                          placeholder={session?.user?.name || session?.user?.email?.split('@')[0] || "Your display name"}
+                        />
+                        <button
+                          onClick={handleSave}
+                          disabled={updateNameMutation.isPending || name === session?.user?.name}
+                          className="px-6 py-3 bg-[#7E87F0] hover:bg-[#6a74e8] disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white rounded-xl font-bold text-xs transition-all shadow-lg shadow-[#7E87F0]/10 flex items-center justify-center gap-2"
+                        >
+                          {updateNameMutation.isPending ? (
+                            <>
+                              <Loader2 size={14} className="animate-spin" />
+                              Saving...
+                            </>
+                          ) : (
+                            "Save Changes"
+                          )}
+                        </button>
+                      </div>
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-gray-500 uppercase tracking-widest px-1">Email Address</label>

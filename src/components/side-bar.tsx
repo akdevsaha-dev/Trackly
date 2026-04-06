@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import { Menu, Activity, AlertTriangle, LayoutDashboard, Settings, LogOut } from "lucide-react";
 import { usePathname } from "next/navigation";
@@ -102,7 +102,12 @@ export const Sidebar = () => {
                 <span className="text-[10px] text-gray-500 group-hover:text-gray-400 transition-colors uppercase tracking-widest font-bold">Free Plan</span>
               </div>
             </div>
-            <LogOut size={14} className="text-gray-600 hover:text-red-400 transition-colors ml-2 flex-shrink-0" />
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="p-1 px-3 text-gray-600 hover:text-red-400 transition-colors ml-2 flex-shrink-0"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>

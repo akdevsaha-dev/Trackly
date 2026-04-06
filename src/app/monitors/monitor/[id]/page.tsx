@@ -8,12 +8,11 @@ export default async function Page({
 }) {
   const { id } = await params;
   return (
-    <div className="flex h-screen w-full bg-[#202432] text-white">
-      <div className="hidden w-[20vw] bg-[#232837] md:block">
-        <Sidebar />
-      </div>
-
-      <MonitorClient siteId={id} />
+    <div className="flex h-screen w-full bg-[#1c1f2b]">
+      <Sidebar />
+      <main className="flex-1 md:ml-64 bg-[#1c1f2b] overflow-hidden">
+        <MonitorClient siteId={id} />
+      </main>
     </div>
   );
 }

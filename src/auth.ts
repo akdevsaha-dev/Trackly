@@ -56,7 +56,26 @@ const authConfig = {
         GitHub({ allowDangerousEmailAccountLinking: true }),
         Google({ allowDangerousEmailAccountLinking: true }),
     ],
+    session: { strategy: "jwt" },
+    pages: {
+        signIn: "/login",
+    },
     callbacks: {
+        authorized({ auth, request: { nextUrl } }: any) {
+            const isLoggedIn = !!auth?.user;
+            const pathname = nextUrl.pathname.replace(/\/$/, "") || "/";
+            const publicRoutes = ["/", "/login", "/signup", "/signin"];
+            const isPublicRoute = publicRoutes.includes(pathname);
+
+            if (isPublicRoute) {
+                if (isLoggedIn && pathname !== "/") {
+                    return Response.redirect(new URL("/monitors", nextUrl));
+                }
+                return true;
+            }
+
+            return isLoggedIn;
+        },
         session({ session, token }: any) {
             if (session.user && token) {
                 session.user.id = token.id as string;

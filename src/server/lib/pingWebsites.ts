@@ -2,7 +2,7 @@
 export const pingWebsites = async (url: string) => {
     const startTime = Date.now()
     try {
-        const res = await fetch(url, { method: "GET", redirect: "manual" })
+        const res = await fetch(url, { method: "GET", redirect: "follow" })
         const responseMs = Date.now() - startTime;
         return { statusCode: res.status, responseMs }
     } catch {

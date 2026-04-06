@@ -2,13 +2,16 @@
 "use client";
 import { Sidebar } from "@/components/side-bar";
 import { trpc } from "@/utils/trpc";
-import { CircleX, Dot, Loader, Plus, Repeat2, Trash2 } from "lucide-react";
+import { CircleX, Dot, Loader, Plus, Repeat2, Trash2, AlertTriangle, X } from "lucide-react";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function Page() {
   const [search, setSearch] = useState("");
+  const [siteToDelete, setSiteToDelete] = useState<{ id: string, url: string } | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const { data: sites, isLoading, isError, error } = trpc.site.getSites.useQuery();
   const utils = trpc.useUtils();
@@ -17,19 +20,27 @@ export default function Page() {
     onSuccess: () => {
       toast.success("Monitor deleted successfully");
       utils.site.getSites.invalidate();
+      setIsDeleteModalOpen(false);
+      setSiteToDelete(null);
     },
     onError: (err) => {
       toast.error("Failed to delete monitor: " + err.message);
     }
   });
 
-  const handleDelete = (e: React.MouseEvent, siteId: string) => {
+  const handleDeleteClick = (e: React.MouseEvent, site: any) => {
     e.preventDefault();
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this monitor? This will also delete all associated logs.")) {
-      deleteMutation.mutate({ siteId });
+    setSiteToDelete(site);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (siteToDelete) {
+      deleteMutation.mutate({ siteId: siteToDelete.id });
     }
   };
+
   const getSiteName = (url: string) => {
     try {
       const { hostname } = new URL(url);
@@ -53,7 +64,7 @@ export default function Page() {
             <p className="text-red-400/80 text-xs font-mono mb-8 bg-red-500/5 py-2 px-3 rounded-lg border border-red-500/10">
               {error?.message || "Unknown error occurred"}
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="w-full py-3 bg-[#7E87F0] hover:bg-[#6a74e8] text-white rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-[#7E87F0]/20"
             >
@@ -138,56 +149,131 @@ export default function Page() {
                       href="/create-monitor"
                       className="text-sm font-bold text-[#7E87F0] hover:text-[#6a74e8] transition-colors"
                     >
-                      Add Monitor →
+                      Add Monitor
                     </Link>
                   </div>
                 ) : (
-                  filteredSites.map((site: any) => (
-                    <Link
-                      href={`/monitors/monitor/${site.id}`}
-                      className="block hover:bg-[#232837]/50 transition-colors group/row"
-                      key={site.id}
-                    >
-                      <div className="flex h-16 items-center justify-between px-6">
-                        <div className="flex items-center gap-4">
-                          <div className="relative">
-                            <div className={`h-3 w-3 rounded-full ${site.isDown ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)]' : 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]'} ${site.isDown ? 'animate-pulse' : ''}`} />
-                            <div className={`absolute -inset-1 rounded-full border ${site.isDown ? 'border-red-500/20' : 'border-green-500/20'}`} />
+                  filteredSites.map((site: any) => {
+                    const latestLog = site.statusLogs?.[0];
+                    const isDown = latestLog
+                      ? (latestLog.statusCode < 200 || latestLog.statusCode >= 300)
+                      : site.isDown;
+
+                    return (
+                      <Link
+                        href={`/monitors/monitor/${site.id}`}
+                        className="block hover:bg-[#232837]/50 transition-colors group/row"
+                        key={site.id}
+                      >
+                        <div className="flex h-16 items-center justify-between px-6">
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                              <div className={`h-3 w-3 rounded-full ${
+                                !site.statusLogs?.length ? 'bg-slate-500' :
+                                isDown ? 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.4)] animate-pulse' : 
+                                'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.4)]'
+                              }`} />
+                              <div className={`absolute -inset-1 rounded-full border ${
+                                !site.statusLogs?.length ? 'border-slate-500/20' :
+                                isDown ? 'border-red-500/20' : 
+                                'border-green-500/20'
+                              }`} />
+                            </div>
+                            <div>
+                              <div className="text-sm font-bold text-slate-200 group-hover/row:text-[#7E87F0] transition-colors leading-none mb-1.5">
+                                {getSiteName(site.url)}
+                              </div>
+                              <div className={`text-[10px] font-bold uppercase tracking-widest ${
+                                !site.statusLogs?.length ? 'text-slate-500' :
+                                isDown ? 'text-red-400' : 'text-green-400'
+                              }`}>
+                                {
+                                  !site.statusLogs?.length ? 'Pending' :
+                                  isDown ? 'Down' : 'Operational'
+                                }
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <div className="text-sm font-bold text-slate-200 group-hover/row:text-[#7E87F0] transition-colors leading-none mb-1.5">
-                              {getSiteName(site.url)}
+                          <div className="flex items-center gap-6">
+                            <div className="hidden sm:flex items-center gap-2 group/item relative cursor-help">
+                              <Repeat2 size={14} className="text-slate-600" />
+                              <span className="text-xs font-mono text-slate-500">5m</span>
+                              <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-[#1c1f2b] border border-[#2c3141] rounded text-[10px] whitespace-nowrap opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity z-10 shadow-xl">
+                                Checked every 3 minutes
+                              </div>
                             </div>
-                            <div className={`text-[10px] font-bold uppercase tracking-widest ${site.isDown ? 'text-red-400' : 'text-green-400'}`}>
-                              {site.isDown ? 'Down' : 'Operational'}
-                            </div>
+                            <button
+                              onClick={(e) => handleDeleteClick(e, site)}
+                              disabled={deleteMutation.isPending}
+                              className="p-2 rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-500 transition-all active:scale-95 disabled:opacity-50"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </div>
                         </div>
-                        <div className="flex items-center gap-6">
-                          <div className="hidden sm:flex items-center gap-2 group/item relative cursor-help">
-                            <Repeat2 size={14} className="text-slate-600" />
-                            <span className="text-xs font-mono text-slate-500">3m</span>
-                            <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-[#1c1f2b] border border-[#2c3141] rounded text-[10px] whitespace-nowrap opacity-0 group-hover/item:opacity-100 pointer-events-none transition-opacity z-10 shadow-xl">
-                              Checked every 3 minutes
-                            </div>
-                          </div>
-                          <button
-                            onClick={(e) => handleDelete(e, site.id)}
-                            disabled={deleteMutation.isPending}
-                            className="p-2 rounded-lg hover:bg-red-500/10 text-slate-600 hover:text-red-500 transition-all active:scale-95 disabled:opacity-50"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </div>
-                    </Link>
-                  ))
+                      </Link>
+                    );
+                  })
                 )}
               </div>
             </div>
           </div>
         </div>
       </main>
+
+      <AnimatePresence>
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative w-full max-w-md overflow-hidden rounded-3xl border border-[#2c3141] bg-[#232837] p-8 shadow-2xl"
+            >
+              <div className="absolute top-4 right-4 text-slate-500 hover:text-white cursor-pointer transition-colors" onClick={() => setIsDeleteModalOpen(false)}>
+                <X size={20} />
+              </div>
+
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 text-red-500 border border-red-500/20">
+                <AlertTriangle size={28} />
+              </div>
+
+              <h2 className="mb-2 text-2xl font-bold text-white">Delete Monitor?</h2>
+              <p className="mb-8 text-sm leading-relaxed text-slate-400">
+                Are you sure you want to delete <span className="font-bold text-slate-200">{getSiteName(siteToDelete?.url || "")}</span>?
+                This action is permanent and will delete all historical uptime logs and statistics.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setIsDeleteModalOpen(false)}
+                  className="flex-1 rounded-xl border border-[#2c3141] bg-[#1c1f2b] py-3 text-sm font-bold text-white transition-all hover:bg-[#2c3141] active:scale-95"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleteMutation.isPending}
+                  className="flex-1 rounded-xl bg-red-500 py-3 text-sm font-bold text-white transition-all hover:bg-red-600 active:scale-95 shadow-lg shadow-red-500/20 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {deleteMutation.isPending ? (
+                    <Loader size={16} className="animate-spin" />
+                  ) : (
+                    "Delete Monitor"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
