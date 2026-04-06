@@ -76,6 +76,20 @@ The following environment variables are required for the application to function
 | `RESEND_API_KEY` | API key from Resend for sending emails |
 | `CRON_SECRET` | Secret key to protect your cron job endpoints |
 
+## ⏲️ Vercel Cron Jobs
+
+This project uses Vercel's native Cron Jobs to automate site monitoring.
+
+- **Config File**: [`vercel.json`](vercel.json) defines the schedule (default is every 10 minutes).
+- **Endpoint**: `/api/cron/init` is the route that performs the monitoring logic.
+- **Security**: The `CRON_SECRET` environment variable is used to ensure only authorized requests (from Vercel) can trigger the monitoring logic.
+
+### Local Simulation
+To manually trigger the monitoring checks locally, call the endpoint with your secret in the `Authorization` header:
+```bash
+curl -H "Authorization: Bearer your_cron_secret_here" "http://localhost:3000/api/cron/init"
+```
+
 ## 📜 Available Scripts
 
 - `npm run dev`: Starts the development server with Turbopack.
