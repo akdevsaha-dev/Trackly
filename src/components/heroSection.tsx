@@ -1,18 +1,20 @@
 "use client";
 import { Variants } from "motion";
 import { motion } from "motion/react";
+
 export const HeroSection = () => {
   const headingText = "Never Miss a Beat Again.".split(" ");
   const paragraphText =
-    `"Real-time uptime monitoring with instant alerts. Keep your online presence alive."`.split(
+    `Real-time uptime monitoring with instant alerts. Keep your online presence alive and flourishing.`.split(
       " ",
     );
+
   const containerVariants: Variants = {
     hidden: {},
     visible: {
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3, 
+        staggerChildren: 0.12,
+        delayChildren: 0.4,
       },
     },
   };
@@ -20,109 +22,110 @@ export const HeroSection = () => {
   const wordVariants: Variants = {
     hidden: {
       opacity: 0,
-      y: 25,
-      filter: "blur(20px)",
-      scale: 0.85,
+      y: 40,
+      filter: "blur(12px)",
     },
     visible: {
       opacity: 1,
       y: 0,
       filter: "blur(0px)",
-      scale: [0.85, 1],
       transition: {
-        opacity: { duration: 0.9, ease: "easeOut" },
-        y: { duration: 0.9, ease: "easeOut" },
-        filter: { duration: 0.9, ease: "easeOut" },
-        scale: {
-          duration: 0.8,
-          delay: 0.9,
-          ease: "easeOut",
-        },
+        duration: 0.8,
+        ease: [0.215, 0.61, 0.355, 1],
       },
     },
   };
 
-  const paraContainerVariants: Variants = {
-    hidden: {},
+  const lineVariants: Variants = {
+    hidden: { scaleX: 0 },
     visible: {
+      scaleX: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 1,
-      },
-    },
-  };
-
-  const paraWordVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: 25,
-      filter: "blur(20px)",
-      scale: 0.85,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      filter: "blur(0px)",
-      scale: [0.85, 1],
-      transition: {
-        opacity: { duration: 0.9, ease: "easeOut" },
-        y: { duration: 0.9, ease: "easeOut" },
-        filter: { duration: 0.9, ease: "easeOut" },
-        scale: {
-          duration: 0.9,
-          delay: 2.4,
-          ease: "easeOut",
-        },
+        delay: 1.5,
+        duration: 1.5,
+        ease: "circOut",
       },
     },
   };
 
   return (
-    <div className="flex h-[80vh] justify-center">
-      <div className="w-[75%]">
-        <div className="mt-[150px] text-center">ACHIEVE PEAK PERFORMANCE</div>
-        <div className="mt-3 flex h-[1px] w-full justify-center">
-          <div className="h-[1px] w-28 bg-gradient-to-r from-transparent via-slate-600 to-transparent"></div>
-        </div>
+    <section className="relative flex min-h-[90vh] flex-col items-center justify-center overflow-hidden px-6 pt-20">
+      <div className="relative z-10 w-full max-w-5xl text-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mb-8 font-mono text-[10px] font-bold tracking-[0.3em] text-white/40 uppercase"
+        >
+          [ Status: Operational // Peak Performance ]
+        </motion.div>
+
         <motion.h1
           initial="hidden"
           animate="visible"
           variants={containerVariants}
-          className="mt-[140px] md:mt-[180px]  md:px-12 text-center text-[32px] md:text-[80px] leading-none font-light tracking-tight font-stretch-extra-expanded antialiased"
+          className="mb-8 font-brand text-5xl font-extrabold leading-[1.1] tracking-tight text-white md:text-[100px] lg:text-[120px]"
         >
           {headingText.map((word, index) => (
             <motion.span
               key={index}
               variants={wordVariants}
-              className="mr-6 inline-block"
+              className={`inline-block mr-[0.2em] ${word.toLowerCase().includes("beat") ? "text-accent" : ""
+                }`}
             >
               {word}
             </motion.span>
           ))}
         </motion.h1>
+
         <motion.div
           initial="hidden"
           animate="visible"
-          variants={paraContainerVariants}
-          className=" px-5 md:px-22 lg:px-32 pt-6 text-center md:text-[25px] lg:text-[37px] font-light text-indigo-100"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: { staggerChildren: 0.05, delayChildren: 1.2 }
+            }
+          }}
+          className="mx-auto mb-12 max-w-2xl text-lg font-medium text-white/50 md:text-2xl font-brand leading-relaxed"
         >
           {paragraphText.map((word, index) => (
             <motion.span
               key={index}
-              className="mr-3 inline-block"
-              variants={paraWordVariants}
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0 }
+              }}
+              className="mr-1.5 inline-block"
             >
               {word}
             </motion.span>
           ))}
         </motion.div>
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 2, duration: 2, ease: "easeOut" }}
-          className="h-[2px] w-full origin-left bg-gradient-to-r from-transparent via-cyan-300 to-transparent"
-        ></motion.div>
+
+        <div className="flex flex-col items-center gap-6">
+          <motion.button
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.8, duration: 0.8 }}
+            className="group relative overflow-hidden rounded-full bg-white px-8 py-4 text-sm font-bold text-black transition-all hover:scale-105 active:scale-95"
+          >
+            <span className="relative z-10">Start Monitoring Free</span>
+            <div className="absolute inset-0 z-0 bg-accent opacity-0 transition-opacity group-hover:opacity-100" />
+          </motion.button>
+
+          <motion.div
+            variants={lineVariants}
+            initial="hidden"
+            animate="visible"
+            className="mt-12 h-[1px] w-full max-w-md bg-gradient-to-r from-transparent via-white/20 to-transparent"
+          />
+        </div>
       </div>
-    </div>
+
+      {/* Atmospheric Glow */}
+      <div className="absolute left-1/2 top-1/2 -z-10 h-[600px] w-[800px] -translate-x-1/2 -translate-y-1/2 bg-electric-blue/10 blur-[120px] opacity-20" />
+    </section>
   );
 };

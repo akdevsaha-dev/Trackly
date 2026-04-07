@@ -43,8 +43,8 @@ export default function Page() {
       <div className="flex h-[10vh] w-full items-center pl-10">
         <Image src={"/logo.svg"} alt="logo" height={100} width={100} />
       </div>
-      <div className="flex h-[90vh] w-full flex-col items-center justify-center">
-        <div className="h-[70vh] w-[420px]">
+      <div className="flex min-h-[90vh] w-full flex-col items-center justify-center py-10">
+        <div className="w-full max-w-[420px] px-6 md:px-0">
           <div className="mb-2 text-3xl/9 font-medium tracking-tight text-zinc-300">
             Create an account
           </div>

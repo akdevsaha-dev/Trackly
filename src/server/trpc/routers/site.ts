@@ -60,7 +60,7 @@ export const siteRouter = router({
         .query(async ({ ctx }) => {
             const session = ctx.session;
             if (!session?.user?.id) {
-                throw new TRPCError({ 
+                throw new TRPCError({
                     code: "UNAUTHORIZED",
                     message: "You must be signed in to view monitors."
                 })
@@ -192,10 +192,9 @@ export const siteRouter = router({
                 throw new TRPCError({ code: "NOT_FOUND" })
             }
 
-            // Use the actual Resend client
             try {
                 await resend.emails.send({
-                    from: 'Trackly <alerts@trackly.com>',
+                    from: 'Trackly <onboarding@resend.dev>',
                     to: ctx.session.user.email,
                     subject: `Test Alert - ${site.url}`,
                     html: `
@@ -211,7 +210,7 @@ export const siteRouter = router({
                 });
                 return { success: true, message: "Test alert sent to " + ctx.session.user.email };
             } catch (err) {
-                 return { success: false, message: "Failed to send email. Check your RESEND_API_KEY." };
+                return { success: false, message: "Failed to send email. Check your RESEND_API_KEY." };
             }
         }),
 
@@ -231,7 +230,7 @@ export const siteRouter = router({
             await ctx.prisma.statusLog.deleteMany({ where: { siteId: input.siteId } });
             await ctx.prisma.alertLog.deleteMany({ where: { siteId: input.siteId } });
             await ctx.prisma.visit.deleteMany({ where: { siteId: input.siteId } });
-            
+
             return await ctx.prisma.site.delete({
                 where: { id: input.siteId }
             });
@@ -241,12 +240,12 @@ export const siteRouter = router({
         const userId = ctx.session?.user?.id;
         if (!userId) {
             console.warn("Unauthorized getIncidents call attempted");
-            throw new TRPCError({ 
+            throw new TRPCError({
                 code: "UNAUTHORIZED",
                 message: "You must be signed in to view incidents."
             });
         }
-        
+
         try {
             const logs = await ctx.prisma.alertLog.findMany({
                 where: {

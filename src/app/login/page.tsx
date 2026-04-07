@@ -5,15 +5,23 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function Page() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [agree, setAgree] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const passwordRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const rememberedEmail = localStorage.getItem("rememberedEmail");
+    if (rememberedEmail) {
+      setEmail(rememberedEmail);
+      setRememberMe(true);
+    }
+  }, []);
 
   const submitHandler = async () => {
     if (!email || !password) {
@@ -25,11 +33,17 @@ export default function Page() {
         redirect: false,
         email,
         password,
+        rememberMe,
       });
 
       if (res?.error) {
         toast.error("Invalid email or password.");
       } else {
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", email);
+        } else {
+          localStorage.removeItem("rememberedEmail");
+        }
         toast.success("Successfully signed in!");
         router.push("/monitors");
       }
@@ -43,8 +57,8 @@ export default function Page() {
       <div className="flex h-[10vh] w-full items-center pl-10">
         <Image src={"/logo.svg"} alt="logo" height={100} width={100} />
       </div>
-      <div className="flex h-[90vh] w-full flex-col items-center justify-center">
-        <div className="h-[70vh] w-[420px]">
+      <div className="flex min-h-[90vh] w-full flex-col items-center justify-center py-10">
+        <div className="w-full max-w-[420px] px-6 md:px-0">
           <div className="mb-2 text-3xl/9 font-medium tracking-tight text-zinc-300">
             Welcome to trackly
           </div>
@@ -83,8 +97,8 @@ export default function Page() {
               <input
                 className="h-4 w-4"
                 type="checkbox"
-                checked={agree}
-                onChange={(e) => setAgree(e.target.checked)}
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
               <label className="text-sm font-light text-white">
                 Remember me
