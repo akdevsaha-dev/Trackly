@@ -1,10 +1,10 @@
 "use client";
 
 import { trpc } from "@/utils/trpc";
-import { ChevronRight, Dot, Globe, SendHorizontal, Activity, Clock, AlertCircle, ArrowLeft } from "lucide-react";
+import { ChevronRight, Dot, Globe, SendHorizontal, Activity, Clock, AlertCircle, ArrowLeft, Zap, Settings2, ExternalLink, Server } from "lucide-react";
 import Link from "next/link";
 import { formatDistance, subDays, format } from "date-fns";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { UptimeBar } from "./uptimeBar";
 import { ResponseTimeChart } from "./responseTimeChart";
@@ -44,6 +44,26 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
       toast.error("Failed to send test alert: " + err.message);
     }
   });
+
+  const updateWarmupMutation = trpc.site.updateWarmupSettings.useMutation({
+    onSuccess: () => {
+      toast.success("Warmup settings updated");
+      utils.site.getSiteStatus.invalidate({ siteId });
+    },
+    onError: (err) => {
+      toast.error("Failed to update warmup settings: " + err.message);
+    }
+  });
+
+  const [localWarmupEnabled, setLocalWarmupEnabled] = useState(false);
+  const [localWarmupUrl, setLocalWarmupUrl] = useState("");
+
+  useEffect(() => {
+    if (data) {
+      setLocalWarmupEnabled(data.warmUpEnabled ?? false);
+      setLocalWarmupUrl(data.warmupUrl ?? "");
+    }
+  }, [data]);
 
   const metrics = useMemo(() => {
     if (!data?.statusLogs || data.statusLogs.length === 0) return null;
@@ -130,15 +150,12 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
             className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12"
           >
             <div className="flex items-center gap-6">
-              <div className={`relative h-16 w-16 flex items-center justify-center rounded-2xl ${
-                !data?.statusLogs?.length ? 'bg-gray-500/10' :
-                metrics?.currentStatus ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
-                <div className={`h-4 w-4 rounded-full ${
-                  !data?.statusLogs?.length ? 'bg-gray-500' :
-                  metrics?.currentStatus ? 'bg-green-500' : 'bg-red-500'} ${metrics?.currentStatus ? 'animate-pulse' : ''}`} />
-                <div className={`absolute inset-0 rounded-2xl border-2 ${
-                  !data?.statusLogs?.length ? 'border-gray-500/20' :
-                  metrics?.currentStatus ? 'border-green-500/20' : 'border-red-500/20'}`} />
+              <div className={`relative h-16 w-16 flex items-center justify-center rounded-2xl ${!data?.statusLogs?.length ? 'bg-gray-500/10' :
+                  metrics?.currentStatus ? 'bg-green-500/10' : 'bg-red-500/10'}`}>
+                <div className={`h-4 w-4 rounded-full ${!data?.statusLogs?.length ? 'bg-gray-500' :
+                    metrics?.currentStatus ? 'bg-green-500' : 'bg-red-500'} ${metrics?.currentStatus ? 'animate-pulse' : ''}`} />
+                <div className={`absolute inset-0 rounded-2xl border-2 ${!data?.statusLogs?.length ? 'border-gray-500/20' :
+                    metrics?.currentStatus ? 'border-green-500/20' : 'border-red-500/20'}`} />
               </div>
 
               <div>
@@ -148,10 +165,10 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
                 <div className="flex items-center gap-3 text-sm font-medium">
                   <span className={
                     !data?.statusLogs?.length ? "text-gray-500" :
-                    metrics?.currentStatus ? "text-green-500" : "text-red-500"}>
+                      metrics?.currentStatus ? "text-green-500" : "text-red-500"}>
                     {
                       !data?.statusLogs?.length ? "Pending First Check" :
-                      metrics?.currentStatus ? "Operational" : "Down"
+                        metrics?.currentStatus ? "Operational" : "Down"
                     }
                   </span>
                   <div className="w-1 h-1 rounded-full bg-gray-700" />
@@ -231,6 +248,100 @@ export default function MonitorClient({ siteId }: { siteId: string }) {
               <div className="flex-1 w-full">
                 <ResponseTimeChart logs={data?.statusLogs || []} />
               </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.6 }}
+              className="rounded-2xl border border-[#2c3141] bg-[#222636]/30 p-8"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="mt-1 h-10 w-10 flex items-center justify-center rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500">
+                    <Zap size={20} fill="currentColor" className="opacity-80" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold mb-1 flex items-center gap-2">
+                      Site Warmup
+                    </h3>
+                    <p className="text-sm text-gray-500 max-w-md">Prevent cold starts and keep your serverless functions active with scheduled pings.</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4">
+                  {data?.provider && (
+                    <div className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2 text-xs font-medium text-gray-400">
+                      <Server size={12} />
+                      {data.provider} Detected
+                    </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      const newState = !localWarmupEnabled;
+                      setLocalWarmupEnabled(newState);
+                      updateWarmupMutation.mutate({
+                        siteId,
+                        enabled: newState,
+                        warmupUrl: localWarmupUrl
+                      });
+                    }}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${localWarmupEnabled ? 'bg-indigo-500' : 'bg-[#2c3141]'}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${localWarmupEnabled ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </button>
+                </div>
+              </div>
+
+              <AnimatePresence>
+                {localWarmupEnabled && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="pt-6 border-t border-[#2c3141]">
+                      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+                        <div className="md:col-span-3">
+                          <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Custom Warmup Path (Optional)</label>
+                          <div className="relative group">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-600 transition-colors group-focus-within:text-indigo-500">
+                              <Settings2 size={16} />
+                            </div>
+                            <input
+                              type="text"
+                              autoComplete="off"
+                              spellCheck="false"
+                              placeholder="/api/ping"
+                              value={localWarmupUrl}
+                              onChange={(e) => setLocalWarmupUrl(e.target.value)}
+                              className="w-full pl-11 pr-4 py-3 bg-[#1c1f2b] border border-[#2c3141] rounded-xl text-sm font-medium focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            updateWarmupMutation.mutate({
+                              siteId,
+                              enabled: localWarmupEnabled,
+                              warmupUrl: localWarmupUrl
+                            });
+                          }}
+                          disabled={updateWarmupMutation.isPending}
+                          className="w-full px-6 py-3 bg-white text-black font-bold text-sm rounded-xl hover:bg-gray-100 transition-all active:scale-95 disabled:opacity-50 h-[46px]"
+                        >
+                          {updateWarmupMutation.isPending ? "Saving..." : "Save Settings"}
+                        </button>
+                      </div>
+                      <p className="mt-4 text-xs text-gray-600 flex items-center gap-2 italic">
+                        <ExternalLink size={12} />
+                        By default, Trackly will ping your main URL if this field is left empty.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
           </div>
         </div>

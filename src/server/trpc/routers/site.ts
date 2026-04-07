@@ -154,6 +154,9 @@ export const siteRouter = router({
                 },
                 select: {
                     id: true,
+                    provider: true,
+                    warmupUrl: true,
+                    warmUpEnabled: true,
                     url: true,
                     brandImage: true,
                     isDown: true,
@@ -264,4 +267,29 @@ export const siteRouter = router({
             return [];
         }
     }),
+    updateWarmupSettings: procedure.input(z.object({
+        siteId: z.string(),
+        enabled: z.boolean(),
+        warmupUrl: z.string().optional()
+    }))
+        .mutation(async ({ input, ctx }) => {
+            const userId = ctx.session?.user.id
+            if (!userId) {
+                throw new TRPCError({ code: "UNAUTHORIZED" })
+            }
+            const site = await ctx.prisma.site.findUnique({
+                where: { id: input.siteId, userId }
+            });
+            if (!site) {
+                throw new TRPCError({ code: "NOT_FOUND" })
+            }
+
+            return await ctx.prisma.site.update({
+                where: { id: input.siteId },
+                data: {
+                    warmUpEnabled: input.enabled,
+                    warmupUrl: input.warmupUrl
+                }
+            });
+        }),
 })
